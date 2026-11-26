@@ -158,14 +158,15 @@ jobs:
             --encrypted "$RUNNER_TEMP/gpu-download/d94-gpu-qualification.tar.gz.enc" --inputs "$RUNNER_TEMP/gpu-link"
 
       - name: Load verified D94 root policies
-        if: false
+        if: env.OS_PROFILE == 'ios-27.0.1-24A446-d94ap'
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.D94_POLICY_TOKEN }}
+          POLICY_REPO: IOS4Amethyst/UniXNU-amethyst
           POLICY_RUN: ${{ inputs.donor_policy_run || '43184772128' }}
         run: |
           [[ "$POLICY_RUN" =~ ^[0-9]+$ ]] || { echo 'D94 requires a successful root-policy run ID'; exit 1; }
-          test "$(gh run view "$POLICY_RUN" --json conclusion --jq .conclusion)" = success
-          gh run download "$POLICY_RUN" -n ios27-d94ap-root-policies -D scripts/policies/ios-27.0.1-24A446-d94ap
+          test "$(gh run view "$POLICY_RUN" --repo "$POLICY_REPO" --json conclusion --jq .conclusion)" = success
+          gh run download "$POLICY_RUN" --repo "$POLICY_REPO" -n ios27-d94ap-root-policies -D scripts/policies/ios-27.0.1-24A446-d94ap
           python3 - <<'PY'
           from pathlib import Path
           p = Path('board.toml')
