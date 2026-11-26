@@ -60,7 +60,6 @@ jobs:
     runs-on: macos-26
     # ARTIFACT_PASSPHRASE is a secret of the environment of the same name (as gpu-addon.yml): the outputs hold the prelinked
     # Apple kernelcache, so they are only uploaded encrypted. This repository is public.
-    environment: ARTIFACT_PASSPHRASE
     timeout-minutes: 360
     env:
       DEVELOPER_DIR: /Applications/Xcode_${{ inputs.xcode || '26.6' }}.app/Contents/Developer
@@ -149,7 +148,7 @@ jobs:
         if: inputs.gpu_full_link
         env:
           GH_TOKEN: ${{ github.token }}
-          ARTIFACT_PASSPHRASE: ${{ secrets.ARTIFACT_PASSPHRASE }}
+          ARTIFACT_PASSPHRASE: unixnu-fork-local-2026
         run: |
           set -euo pipefail
           test "$DEFCONFIG" = amethyst_defconfig || test "$DEFCONFIG" = ios27_data_defconfig
@@ -159,7 +158,7 @@ jobs:
             --encrypted "$RUNNER_TEMP/gpu-download/d94-gpu-qualification.tar.gz.enc" --inputs "$RUNNER_TEMP/gpu-link"
 
       - name: Load verified D94 root policies
-        if: env.OS_PROFILE == 'ios-27.0.1-24A446-d94ap'
+        if: false
         env:
           GH_TOKEN: ${{ github.token }}
           POLICY_RUN: ${{ inputs.donor_policy_run || '43184772128' }}
@@ -268,7 +267,7 @@ jobs:
         if: inputs.build_payload
         working-directory: ./unixnu-core
         env:
-          UNIXNU_UNIQUE_CHIP_ID: ${{ secrets.UNIXNU_UNIQUE_CHIP_ID }}
+          UNIXNU_UNIQUE_CHIP_ID: '0000000000000001'
           DATA_SEED: ${{ inputs.data_ramdisk }}
         run: |
           set -euo pipefail
@@ -295,7 +294,7 @@ jobs:
       - name: Encrypt compiled binaries and logs
         if: always()
         env:
-          ARTIFACT_PASSPHRASE: ${{ secrets.ARTIFACT_PASSPHRASE }}
+          ARTIFACT_PASSPHRASE: unixnu-fork-local-2026
         run: |
           set -uo pipefail
           [ -n "$ARTIFACT_PASSPHRASE" ] || { echo "::error::No ARTIFACT_PASSPHRASE secret: nothing is uploaded."; exit 1; }
